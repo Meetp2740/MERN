@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import navigate from 'navigate'
 
 function Signup() {
@@ -7,6 +7,7 @@ function Signup() {
   const [formData, setformData] = useState({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   const formHandler = (e) => {
     setformData({ ...formData, [e.target.id]: e.target.value });
@@ -25,13 +26,16 @@ function Signup() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+      setLoading(false)
       if(data.success === false ){
         setError(true)  
+        return
       }
+      navigate("/sign-in")
+      setformData({})
     } catch (error) {
-      console.log(error, "navb")
+      console.log(error)
     }
-    setLoading(false)
   };
 
 
@@ -41,13 +45,12 @@ function Signup() {
       <form className='flex flex-col gap-4' onSubmit={submitHandler}>
         <input type='text' placeholder='username' id='username' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
         <input type='email' placeholder='email' id='email' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
-        <input type='text' placeholder='password' id='password' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
+        <input type='password' placeholder='password' id='password' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
         <button disabled={loading} className='bg-slate-700 text-white p-2 rounded-lg uppercase hover:opacity-80 disabled:opacity-50'>{loading ? "Loading.." : "Sign Up"}</button>
-        <button className='bg-red-700 text-white p-2 rounded-lg uppercase hover:opacity-80 disabled:opacity-50'>Continue with google</button>
         <div className='flex gap-3'>
-          <p>Have an account?</p>
+          <p className='font-semibold'>Have an account?</p>
           <Link to={"/sign-in"}>
-            <span className='text-blue-600'>Sign in</span>
+            <span className='text-blue-600 font-semibold'>Sign in</span>
           </Link>
         </div>
       </form>
