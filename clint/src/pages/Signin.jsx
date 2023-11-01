@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { signInFail, signInStart, signInSuccess } from '../redux/Slices/userSlice'
+import OAuth from '../components/OAuth'
 
 function Signin() {
 
   const [formData, setformData] = useState({})
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch()
 
   const navigate = useNavigate();
 
@@ -15,10 +18,9 @@ function Signin() {
 
 
   const submitHandler = async (e) => {
-    setError(false)
     e.preventDefault();
     try {
-      setLoading(true)
+      dispatch(signInStart())
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: {
@@ -27,15 +29,15 @@ function Signin() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      setLoading(false)
       if(data.success === false ){
-        setError(true)  
-        return
-      };
-      navigate("/")
+        dispatch(signInFail(data))
+          return
+      }else{
+        dispatch(signInSuccess(data));
+        navigate("/")
+      }
     } catch (error) {
-      console.log(error)
-      console.log("somthing went wrong")
+      dispatch(signInFail(error))
     }
   };
 
@@ -47,7 +49,7 @@ function Signin() {
         <input type='email' placeholder='email' id='email' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
         <input type='password' placeholder='password' id='password' className='p-3 bg-slate-100 rounded-lg' onChange={formHandler}></input>
         <button disabled={loading} className='bg-slate-700 text-white p-2 rounded-lg uppercase hover:opacity-80 disabled:opacity-50'>{loading ? "Loading..." : "Sign-In"}</button>
-        <button className='bg-red-700 text-white p-2 rounded-lg uppercase hover:opacity-80 disabled:opacity-50'>Continue with google</button>
+        <OAuth/>
         <div className='flex gap-3'>
           <p className='font-semibold'>Dont Have an account?</p>
           <Link to={"/sign-up"}>
@@ -55,7 +57,7 @@ function Signin() {
           </Link>
         </div>
       </form>
-      <p className='text-red-900 my-5 font-semibold'>{error && "Something went wrong"}</p>
+      <p className='text-red-900 my-5 font-semibold'>{error ? error.message || "Something went wrong" : " "}</p>
     </div>
   )
 }

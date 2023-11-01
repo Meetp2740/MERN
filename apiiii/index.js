@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config()
+import cookieParser from 'cookie-parser';
 // import userRoute from './routes/user.route.js'
 import userRoute from '../apiiii/routes/user.route.js'
 import authRoutes from '../apiiii/routes/auth.route.js'
@@ -13,11 +14,13 @@ mongoose.connect(process.env.MONGO).then(() => {
 })
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
+
+app.use(cookieParser());
 
 
 app.listen(3000, () => {
-    console.log("Server listing on port 3000")
+    console.log("Server listing 3000")
 })
 
 app.use('/api/user', userRoute);
