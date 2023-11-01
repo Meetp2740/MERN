@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config()
 import cookieParser from 'cookie-parser';
-// import userRoute from './routes/user.route.js'
 import userRoute from '../apiiii/routes/user.route.js'
 import authRoutes from '../apiiii/routes/auth.route.js'
+import path from 'path';
 
 mongoose.connect(process.env.MONGO).then(() => {
     console.log("connected sucessfull to database")
@@ -13,7 +13,16 @@ mongoose.connect(process.env.MONGO).then(() => {
     console.log("not connected", err)
 })
 
+const __dirname = path.resolve();
+
 const app = express();
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
+
 app.use(express.json());
 
 app.use(cookieParser());
